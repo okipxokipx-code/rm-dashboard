@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>숙박 수익경영 도우미 · 2026.06.08</title>
+<style>
+  :root {
+    --bg: #F5F6FA;
+    --card: #FFFFFF;
+    --border: #E8EAED;
+    --text: #1A1D23;
+    --sub: #6B7280;
+    --red: #DC2626;
+    --red-bg: #FEF2F2;
+    --red-border: #FECACA;
+    --orange: #D97706;
+    --orange-bg: #FFFBEB;
+    --orange-border: #FDE68A;
+    --blue: #2563EB;
+    --blue-bg: #EFF6FF;
+    --blue-border: #BFDBFE;
+    --green: #16A34A;
+    --green-bg: #F0FDF4;
+    --navy: #1E3A5F;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.05);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── 상단 헤더 ── */
+  .top-bar {
+    background: var(--navy);
+    color: #fff;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .top-bar .logo { font-size: 15px; font-weight: 700; letter-spacing: -.3px; }
+  .top-bar .logo span { color: #60A5FA; }
+  .top-bar .date-badge {
+    background: rgba(255,255,255,.12);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: #CBD5E1;
+  }
+  .top-bar .update { font-size: 11px; color: #94A3B8; }
+
+  /* ── 레이아웃 ── */
+  .wrapper { max-width: 1280px; margin: 0 auto; padding: 20px 24px 60px; }
+
+  /* ── 오늘의 액션 ── */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--sub);
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-title::before {
+    content: '';
+    width: 3px; height: 14px;
+    background: var(--blue);
+    border-radius: 2px;
+    display: block;
+  }
+
+  .alert-banner {
+    background: linear-gradient(135deg, #7F1D1D 0%, #DC2626 100%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .alert-banner .icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .alert-banner strong { font-size: 14px; display: block; margin-bottom: 4px; }
+  .alert-banner p { font-size: 12.5px; color: #FCA5A5; line-height: 1.7; }
+
+  /* ── 오늘 할 일 카드 ── */
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .action-card {
+    background: var(--card);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .action-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    border-radius: 10px 0 0 10px;
+  }
+  .action-card.urgent::before { background: var(--red); }
+  .action-card.warn::before { background: var(--orange); }
+  .action-card.info::before { background: var(--blue); }
+  .action-card .rank {
+    font-size: 11px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .action-card.urgent .rank { color: var(--red); }
+  .action-card.warn .rank { color: var(--orange); }
+  .action-card.info .rank { color: var(--blue); }
+  .action-card h4 { font-size: 13px; font-weight: 700; margin-bottom: 3px; line-height: 1.4; }
+  .action-card .period { font-size: 11px; color: var(--sub); margin-bottom: 8px; }
+  .action-card .tip {
+    font-size: 12px;
+    color: #374151;
+    background: var(--bg);
+    border-radius: 6px;
+    padding: 8px 10px;
+    line-height: 1.6;
+  }
+
+  /* ── 랭킹 보드 ── */
+  .ranking-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+
+  .rank-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 0 16px;
+    align-items: start;
+    transition: box-shadow .15s;
+  }
+  .rank-card:hover { box-shadow: var(--shadow-md); }
+
+  .rank-num {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .rank-num.r1 { background: #FEF9C3; color: #854D0E; }
+  .rank-num.r2 { background: #F1F5F9; color: #475569; }
+  .rank-num.r3 { background: #FEF3C7; color: #92400E; }
+  .rank-num.rn { background: var(--bg); color: var(--sub); font-size: 15px; }
+
+  .rank-body { min-width: 0; }
+  .rank-meta {
+    display: flex; align-items: center; gap: 6px;
+    margin-bottom: 4px; flex-wrap: wrap;
+  }
+  .region-badge {
+    font-size: 11px; font-weight: 700;
+    padding: 2px 8px; border-radius: 20px;
+    white-space: nowrap;
+  }
+  .rb-red    { background: #FEE2E2; color: #991B1B; }
+  .rb-blue   { background: #DBEAFE; color: #1D4ED8; }
+  .rb-green  { background: #DCFCE7; color: #166534; }
+  .rb-purple { background: #EDE9FE; color: #6D28D9; }
+  .rb-orange { background: #FFEDD5; color: #9A3412; }
+  .rb-teal   { background: #CCFBF1; color: #0F766E; }
+  .rb-gray   { background: #F3F4F6; color: #374151; }
+  .rb-pink   { background: #FCE7F3; color: #9D174D; }
+
+  .location { font-size: 11px; color: var(--sub); }
+  .rank-body h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; line-height: 1.4; }
+  .rank-body h3 .unconfirmed { color: var(--red); font-size: 11px; font-weight: 600; margin-left: 4px; }
+
+  .metrics {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;
+  }
+  .metric-chip {
+    font-size: 11px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 8px;
+    color: #374151;
+    white-space: nowrap;
+  }
+  .metric-chip strong { color: var(--navy); }
+
+  .rm-guide {
+    font-size: 12px;
+    color: #374151;
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    border-radius: 7px;
+    padding: 8px 11px;
+    line-height: 1.7;
+  }
+  .rm-guide.urgent-guide {
+    background: var(--red-bg);
+    border-color: var(--red-border);
+  }
+  .rm-guide.warn-guide {
+    background: var(--orange-bg);
+    border-color: var(--orange-border);
+  }
+
+  .impact-badge {
+    font-size: 12px; font-weight: 700;
+    padding: 4px 12px; border-radius: 20px;
+    white-space: nowrap; align-self: start;
+  }
+  .impact-high   { background: #FEE2E2; color: #991B1B; }
+  .impact-mid    { background: #FEF3C7; color: #92400E; }
+  .impact-low    { background: #F0FDF4; color: #166534; }
+  .impact-unk    { background: #F3F4F6; color: #374151; }
+
+  /* ── 캘린더 타임라인 ── */
+  .calendar-section { margin-bottom: 28px; }
+  .month-block { margin-bottom: 20px; }
+  .month-label {
+    font-size: 13px; font-weight: 700;
+    color: var(--navy); margin-bottom: 10px;
+    padding-bottom: 6px; border-bottom: 2px solid var(--navy);
+  }
+  .timeline-grid {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .tl-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 70px;
+    gap: 8px;
+    align-items: center;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 14px;
+    font-size: 12.5px;
+  }
+  .tl-row:hover { background: var(--bg); }
+  .tl-date { color: var(--sub); font-weight: 600; font-size: 12px; }
+  .tl-name { font-weight: 600; }
+  .tl-name .loc { font-weight: 400; color: var(--sub); font-size: 11px; margin-left: 4px; }
+  .tl-impact { text-align: right; }
+  .dot-high   { width: 8px; height: 8px; border-radius: 50%; background: var(--red); display: inline-block; margin-right: 4px; }
+  .dot-mid    { width: 8px; height: 8px; border-radius: 50%; background: var(--orange); display: inline-block; margin-right: 4px; }
+  .dot-low    { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 4px; }
+
+  /* ── 지역 필터 탭 ── */
+  .filter-bar {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .filter-btn {
+    font-size: 12px; font-weight: 600;
+    padding: 5px 13px; border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--card); color: var(--sub);
+    cursor: pointer; transition: all .15s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    border-color: var(--blue); background: var(--blue-bg); color: var(--blue);
+  }
+
+  /* ── 지역별 상세 테이블 ── */
+  .region-section { margin-bottom: 28px; }
+  .region-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+    padding: 10px 16px;
+    background: var(--navy);
+    border-radius: 10px;
+    color: #fff;
+  }
+  .region-header h2 { font-size: 14px; font-weight: 700; }
+  .region-header .count {
+    margin-left: auto;
+    background: rgba(255,255,255,.15);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 11px;
+  }
+
+  .event-table {
+    width: 100%; border-collapse: collapse;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .event-table th {
+    background: #F8FAFC;
+    font-size: 11px; font-weight: 700;
+    color: var(--sub);
+    padding: 9px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .event-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #F1F3F5;
+    vertical-align: top;
+    font-size: 12.5px;
+  }
+  .event-table tr:last-child td { border-bottom: none; }
+  .event-table tr:hover td { background: #FAFBFC; }
+  .event-table .name { font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .event-table .org  { font-size: 11px; color: var(--sub); }
+  .event-table .rm-text {
+    font-size: 12px; color: #374151;
+    background: var(--blue-bg);
+    border-radius: 5px;
+    padding: 5px 8px;
+    line-height: 1.6;
+  }
+  .no-event { color: var(--sub); font-size: 12px; padding: 14px 12px !important; font-style: italic; }
+
+  /* ── 영향도 뱃지 ── */
+  .badge {
+    display: inline-block;
+    font-size: 11px; font-weight: 700;
+    padding: 2px 9px; border-radius: 20px;
+    white-space: nowrap;
+  }
+  .badge-high   { background: #FEE2E2; color: #991B1B; }
+  .badge-mid    { background: #FEF3C7; color: #92400E; }
+  .badge-low    { background: #DCFCE7; color: #166534; }
+  .badge-lowmid { background: #E0F2FE; color: #0369A1; }
+  .badge-unk    { background: #F3F4F6; color: #6B7280; }
+
+  /* ── 하단 출처 ── */
+  .footer-sources {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-top: 8px;
+  }
+  .footer-sources h4 { font-size: 12px; font-weight: 700; color: var(--sub); margin-bottom: 10px; }
+  .source-links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .source-links a {
+    font-size: 11px;
+    color: var(--blue);
+    text-decoration: none;
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    border-radius: 5px;
+    padding: 3px 9px;
+  }
+  .source-links a:hover { text-decoration: underline; }
+
+  /* ── 반응형 ── */
+  @media (max-width: 768px) {
+    .wrapper { padding: 16px 14px 50px; }
+    .rank-card { grid-template-columns: 36px 1fr; }
+    .rank-card .impact-badge { display: none; }
+    .action-grid { grid-template-columns: 1fr 1fr; }
+    .tl-row { grid-template-columns: 90px 1fr; }
+    .tl-impact { display: none; }
+  }
+  @media (max-width: 480px) {
+    .action-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── 탭 콘텐츠 토글 ── */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ── 섹션 탭 ── */
+  .tab-hint {
+    font-size: 12px; color: var(--sub);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .tab-hint::before {
+    content: '👆';
+    font-size: 13px;
+  }
+  .main-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .main-tab {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 5px;
+    padding: 14px 10px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--sub);
+    cursor: pointer;
+    transition: all .18s;
+    box-shadow: var(--shadow);
+    font-size: 14px; font-weight: 700;
+    letter-spacing: -.2px;
+    position: relative;
+  }
+  .main-tab .tab-icon { font-size: 22px; line-height: 1; }
+  .main-tab .tab-label { font-size: 13px; font-weight: 700; color: inherit; }
+  .main-tab .tab-desc { font-size: 11px; font-weight: 400; color: var(--sub); line-height: 1.4; text-align: center; }
+  .main-tab:hover {
+    border-color: var(--blue);
+    background: var(--blue-bg);
+    color: var(--blue);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  .main-tab:hover .tab-desc { color: var(--blue); opacity: .7; }
+  .main-tab.active {
+    border-color: var(--navy);
+    background: var(--navy);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(30,58,95,.25);
+    transform: translateY(-2px);
+  }
+  .main-tab.active .tab-desc { color: #93C5FD; }
+  .main-tab.active::after {
+    content: '';
+    position: absolute; bottom: -9px; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid var(--navy);
+  }
+
+  .scroll-top {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--navy); color: #fff;
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 18px;
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+
+<!-- 상단 헤더 -->
+<div class="top-bar">
+  <div class="logo">🏨 숙박 <span>수익경영</span> 도우미</div>
+  <div class="date-badge">📅 2026년 6월 8일 오전 7:00 기준</div>
+  <div class="update">조사 기간 ~8월 7일 (D+60)</div>
+</div>
+
+<div class="wrapper">
+
+  <!-- 긴급 경보 배너 -->
+  <div class="alert-banner">
+    <div class="icon">🚨</div>
+    <div>
+      <strong>이달의 최우선 경보 — 부산 7월 전체가 최고수요 구간입니다</strong>
+      <p>7월 13~29일 유네스코 세계유산위원회 (196개국) + 7월 24일~8월 9일 보령머드축제 + 8월 1~3일 부산바다축제가 연속 겹칩니다. 부산·보령 인근 업소는 지금 즉시 7월 가격 전략을 재검토하세요.</p>
+    </div>
+  </div>
+
+  <!-- 오늘 할 일 -->
+  <div class="section-title">오늘 아침 즉시 조치 사항</div>
+  <div class="action-grid">
+    <div class="action-card urgent">
+      <div class="rank">🔴 1순위</div>
+      <h4>부산 유네스코 WHC<br>7/13~7/29</h4>
+      <div class="period">D-35부터 시작 · 17일 연속</div>
+      <div class="tip">전 기간 최고 단가 즉시 재설정 + 외교·언론 법인 블록 확보 지금 시작</div>
+    </div>
+    <div class="action-card urgent">
+      <div class="rank">⚠️ 2순위 (미확정)</div>
+      <h4>부산 BTS 투어<br>6/12~6/13 추정</h4>
+      <div class="period">D-4 · 지금 즉시 공식 확인 필요</div>
+      <div class="tip">HYBE 공식 채널 확인 후 확정 시 즉각 블록 마감 + 최고가 설정</div>
+    </div>
+    <div class="action-card urgent">
+      <div class="rank">🔴 3순위</div>
+      <h4>충남 보령머드축제<br>7/24~8/9</h4>
+      <div class="period">17일 연속 · 완판 예정 구간</div>
+      <div class="tip">전 기간 최고 단가 + 주말 2박 최소 숙박 조건 지금 재확인</div>
+    </div>
+    <div class="action-card warn">
+      <div class="rank">🟡 4순위</div>
+      <h4>대구 치맥페스티벌<br>7월 중순 (일정 미확정)</h4>
+      <div class="period">조직위 출범 완료 · 일정 곧 발표</div>
+      <div class="tip">조직위 공홈 즉시 확인 → 확정 즉시 30~50% 인상 세팅</div>
+    </div>
+    <div class="action-card info">
+      <div class="rank">🔵 5순위</div>
+      <h4>인천 펜타포트<br>7/31~8/2</h4>
+      <div class="period">송도 달빛축제공원 · 3일</div>
+      <div class="tip">조기 예약 현황 확인 → 아직 여유 있으면 지금 20~30% 인상</div>
+    </div>
+  </div>
+
+  <!-- 메인 탭 -->
+  <p class="tab-hint">아래 버튼을 눌러 원하는 정보를 확인하세요</p>
+  <div class="main-tabs">
+    <button class="main-tab active" onclick="showTab('ranking', this)">
+      <span class="tab-icon">📊</span>
+      <span class="tab-label">수요 랭킹</span>
+      <span class="tab-desc">영향 큰 행사 순위<br>가격 전략 팁 포함</span>
+    </button>
+    <button class="main-tab" onclick="showTab('calendar', this)">
+      <span class="tab-icon">📅</span>
+      <span class="tab-label">일정 달력</span>
+      <span class="tab-desc">6~8월 행사 타임라인<br>날짜별 한눈에 보기</span>
+    </button>
+    <button class="main-tab" onclick="showTab('region', this)">
+      <span class="tab-icon">📍</span>
+      <span class="tab-label">지역별 상세</span>
+      <span class="tab-desc">내 지역 행사만 보기<br>수익경영 팁 상세</span>
+    </button>
+  </div>
+
+  <!-- 탭 1: 랭킹 -->
+  <div id="tab-ranking" class="tab-content active">
+    <div class="section-title">숙박 수요 유발 랭킹 — 상위 15개 이벤트</div>
+    <div class="ranking-list">
+
+      <div class="rank-card">
+        <div class="rank-num r1">1</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-red">부산</span>
+            <span class="location">해운대구 우동 · BEXCO 컨벤션홀</span>
+          </div>
+          <h3>제48차 유네스코 세계유산위원회 (WHC 2026)</h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 07.13 ~ 07.29 · 17일</span>
+            <span class="metric-chip">👥 196개국 대표단 4,000~6,000명 장기 체류</span>
+            <span class="metric-chip">🏠 50실↓ <strong>92.3회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>71.8회/실</strong></span>
+          </div>
+          <div class="rm-guide urgent-guide">💡 올해 부산 최대 MICE. 7/13~29 전 기간 해운대·센텀·우동 전 호텔 조기 완판 예상. 지금 즉시 최고 단가 재설정 + 외교관·NGO·언론 법인 블록 우선 확보. 체크인 전날(7/12 일요일)부터 수요 발생.</div>
+        </div>
+        <span class="impact-badge impact-high">영향 상</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num r2">2</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-orange">충남</span>
+            <span class="location">보령시 신흑동 · 대천해수욕장</span>
+          </div>
+          <h3>제29회 보령머드축제</h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 07.24 ~ 08.09 · 17일</span>
+            <span class="metric-chip">👥 연 100만 명+ (일평균 58,800명)</span>
+            <span class="metric-chip">🏠 50실↓ <strong>88.5회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>68.2회/실</strong></span>
+          </div>
+          <div class="rm-guide urgent-guide">💡 대천 인근 소형 펜션·모텔에 극도 유리. 주말(7/25~26, 8/1~2, 8/8~9) 2박 최소 숙박 조건 필수. 전년 대비 ADR 50~80% 인상도 수용 가능. 지금 즉시 전 기간 최고 단가 설정.</div>
+        </div>
+        <span class="impact-badge impact-high">영향 상</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num r3">3</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-red">부산</span>
+            <span class="location">해운대·광안리·송정·다대포 전 해변</span>
+          </div>
+          <h3>부산바다축제 2026</h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 08.01 ~ 08.03 · 3일 집중</span>
+            <span class="metric-chip">👥 3일 합산 300~500만 명</span>
+            <span class="metric-chip">🏠 50실↓ <strong>85.1회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>65.4회/실</strong></span>
+          </div>
+          <div class="rm-guide urgent-guide">💡 유네스코 회의 직후 연속 피크. 7/31(금) 체크인~8/3(일) 체크아웃 3박 연박 패키지 세팅 + 2박 최소 숙박 조건. 7/31부터 부산 해변권 완판 확실.</div>
+        </div>
+        <span class="impact-badge impact-high">영향 상</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num rn">4</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-blue">인천</span>
+            <span class="location">연수구 송도동 · 달빛축제공원</span>
+          </div>
+          <h3>인천 펜타포트 락 페스티벌 2026</h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 07.31 ~ 08.02 · 3일</span>
+            <span class="metric-chip">👥 3일 합산 8~12만 명</span>
+            <span class="metric-chip">🏠 50실↓ <strong>78.3회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>60.2회/실</strong></span>
+          </div>
+          <div class="rm-guide">💡 비수도권 팬 숙박 비율 높아 소형 업소에 유리. 7/30(목)부터 조기 도착 수요. 즉시 20~30% 인상 + 2박 이상 최소 숙박 조건 설정.</div>
+        </div>
+        <span class="impact-badge impact-high">영향 상</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num rn">5</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-purple">대구</span>
+            <span class="location">달서구 두류동 · 두류공원 야외음악당</span>
+          </div>
+          <h3>대구치맥페스티벌 2026 <span class="unconfirmed">⚠ 일정 미확정</span></h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 7월 2~3주차 추정 (목~일 4일)</span>
+            <span class="metric-chip">👥 4일 합산 100만 명</span>
+            <span class="metric-chip">🏠 50실↓ <strong>75.6회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>58.4회/실</strong></span>
+          </div>
+          <div class="rm-guide warn-guide">💡 일정 확정 즉시 ADR 30~50% 인상 필수. 두류공원·달서구·서구 인근 우선 수혜. 치맥 특성상 심야 귀가 포기 1박 수요 비율 높음.</div>
+        </div>
+        <span class="impact-badge impact-high">영향 상</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num rn">6</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-teal">제주</span>
+            <span class="location">제주시·서귀포시 전역</span>
+          </div>
+          <h3>제주 하계 성수기 (자체 수요)</h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 07.01 ~ 08.31 (본 조사 내 ~08.07)</span>
+            <span class="metric-chip">👥 월 150만 명 방문 (7~8월)</span>
+            <span class="metric-chip">🏠 50실↓ <strong>72.1회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>55.8회/실</strong></span>
+          </div>
+          <div class="rm-guide">💡 별도 행사 없이도 전국 최고 수요. 얼리버드 즉시 종료 + 최소 2박 조건 + 할인 상품 비활성화 필수. 가족 단위 온돌·패밀리룸 별도 상향 권장.</div>
+        </div>
+        <span class="impact-badge impact-high">영향 상</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num rn">7</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-green">강원</span>
+            <span class="location">강릉시 남대천 · 단오장</span>
+          </div>
+          <h3>강릉단오제 (유네스코 인류무형문화유산) <span class="unconfirmed">⚠ 일정 재확인</span></h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 06.18 ~ 06.24 추정 (7일)</span>
+            <span class="metric-chip">👥 10만 명 이상 유입</span>
+            <span class="metric-chip">🏠 50실↓ <strong>68.4회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>52.1회/실</strong></span>
+          </div>
+          <div class="rm-guide">💡 6/20~21(토~일) 주말 집중 피크. 강릉 시내·경포·주문진 숙소 ADR 25~30% 인상 + 2박 최소 숙박. 강릉단오제보존회 공식 사이트에서 정확 일정 재확인 필수.</div>
+        </div>
+        <span class="impact-badge impact-high">영향 상</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num rn">8</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-pink">부산</span>
+            <span class="location">전역 · 아시아드주경기장 (추정)</span>
+          </div>
+          <h3>BTS WORLD TOUR IN BUSAN 2026 <span class="unconfirmed">⚠ 미발표 — 즉시 확인 필수</span></h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 06.12 ~ 06.13 추정 (2일)</span>
+            <span class="metric-chip">👥 확인 시 20~30만 명 (2일 합산)</span>
+            <span class="metric-chip">🏠 50실↓ <strong>95.0회/실 (확인 시)</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>78.5회/실 (확인 시)</strong></span>
+          </div>
+          <div class="rm-guide urgent-guide">💡 오늘 즉시 HYBE 공홈·인터파크·예스24 확인. 확정 시 부산 전역 6/11~14 역대 최고 단가 설정 + 전 채널 블록 마감. 해외 팬 조기 체크인 유료화 필수.</div>
+        </div>
+        <span class="impact-badge impact-unk">확인 중</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num rn">9</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-purple">대구</span>
+            <span class="location">중구·수성구 · 오페라하우스·계명아트센터</span>
+          </div>
+          <h3>제19회 DIMF 대구국제뮤지컬페스티벌 (20주년)</h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 06.19 ~ 07.06 · 18일</span>
+            <span class="metric-chip">👥 총 20~30만 명 유입</span>
+            <span class="metric-chip">🏠 50실↓ <strong>65.3회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>50.7회/실</strong></span>
+          </div>
+          <div class="rm-guide">💡 주말(6/20~21, 6/27~28, 7/4~5) 최고 단가 집중 운용. 평일도 15~20% 인상 유지. 7/3~5일은 Medi Expo Korea와 중첩 → 대구 전역 수요 폭발 구간.</div>
+        </div>
+        <span class="impact-badge impact-high">영향 상</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num rn">10</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-red">부산</span>
+            <span class="location">해운대구 센텀시티 · BEXCO</span>
+          </div>
+          <h3>부산모빌리티쇼 2026</h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 06.27 ~ 07.05 · 9일</span>
+            <span class="metric-chip">👥 20~30만 명 (9일 합산)</span>
+            <span class="metric-chip">🏠 50실↓ <strong>55.7회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>43.1회/실</strong></span>
+          </div>
+          <div class="rm-guide">💡 BEXCO 반경 2km 숙소 9일 전 기간 ADR 5~15% 인상 유지. 법인 출장 고객 레이트 체크아웃 유료 서비스 강화.</div>
+        </div>
+        <span class="impact-badge impact-mid">영향 중</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num rn">11</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-gray">서울</span>
+            <span class="location">마포구 월드컵로 · 문화비축기지</span>
+          </div>
+          <h3>RAPBEAT 2026 (힙합·R&B 대형 뮤직 페스티벌)</h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 06.20 ~ 06.21 · 주말 2일</span>
+            <span class="metric-chip">👥 약 2~3만 명</span>
+            <span class="metric-chip">🏠 50실↓ <strong>48.2회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>36.5회/실</strong></span>
+          </div>
+          <div class="rm-guide">💡 홍대·합정·마포·공덕 금~일 수요 집중. ADR 10~20% 인상 + 금요일 1박 연박 패키지. 심야 공연 후 귀가 포기 1박 비율 높음.</div>
+        </div>
+        <span class="impact-badge impact-mid">영향 중</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num rn">12</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-green">경기</span>
+            <span class="location">고양시 일산서구 · KINTEX</span>
+          </div>
+          <h3>나노코리아 2026</h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 07.08 ~ 07.10 · 평일 3일</span>
+            <span class="metric-chip">👥 3~5만 명</span>
+            <span class="metric-chip">🏠 50실↓ <strong>43.6회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>33.9회/실</strong></span>
+          </div>
+          <div class="rm-guide">💡 평일 비즈니스 수요. 일산·덕양 인근 숙소 ADR 5~10% 인상. KINTEX 반경 3km 블록 사전 판매 권장.</div>
+        </div>
+        <span class="impact-badge impact-mid">영향 중</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num rn">13</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-teal">전남</span>
+            <span class="location">장흥군 장흥읍 · 탐진강 일원</span>
+          </div>
+          <h3>장흥물축제 2026</h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 07.25 ~ 08.02 · 9일</span>
+            <span class="metric-chip">👥 30~50만 명</span>
+            <span class="metric-chip">🏠 50실↓ <strong>40.8회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>31.5회/실</strong></span>
+          </div>
+          <div class="rm-guide">💡 주말(7/26, 8/1~2) 집중. 장흥·강진·보성 숙소 정가 판매 전환. 보령머드축제와 날짜 겹쳐 남도 방면 수요 자체 흡수 가능.</div>
+        </div>
+        <span class="impact-badge impact-mid">영향 중</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num rn">14</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-red">부산</span>
+            <span class="location">해운대구 센텀시티 · BEXCO</span>
+          </div>
+          <h3>전기전자재료학회 학술대회 + AUTOMANUFAC Korea 2026 (연속 개최)</h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 06.24~26 + 07.01~03</span>
+            <span class="metric-chip">👥 각 3,000~8,000명</span>
+            <span class="metric-chip">🏠 50실↓ <strong>35.2회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>27.6회/실</strong></span>
+          </div>
+          <div class="rm-guide">💡 두 행사 모두 평일 B2B 수요. BEXCO 주변 비즈니스 숙소 해당 주 평일 공실 방어용. ADR 5~8% 인상.</div>
+        </div>
+        <span class="impact-badge impact-low">영향 하~중</span>
+      </div>
+
+      <div class="rank-card">
+        <div class="rank-num rn">15</div>
+        <div class="rank-body">
+          <div class="rank-meta">
+            <span class="region-badge rb-orange">충남</span>
+            <span class="location">부여군 부여읍 · 궁남지 일원</span>
+          </div>
+          <h3>부여서동연꽃축제</h3>
+          <div class="metrics">
+            <span class="metric-chip">📅 07.03 ~ 07.05 · 주말 3일</span>
+            <span class="metric-chip">👥 3~6만 명</span>
+            <span class="metric-chip">🏠 50실↓ <strong>28.4회/실</strong></span>
+            <span class="metric-chip">🏨 80실↑ <strong>21.3회/실</strong></span>
+          </div>
+          <div class="rm-guide">💡 당일치기 비율 높음. 백제 역사 연계 2박 상품 구성 시 잔여 객실 소진 가능. 부여·공주 묶음 여행 패키지 기획 타이밍.</div>
+        </div>
+        <span class="impact-badge impact-low">영향 하</span>
+      </div>
+
+    </div><!-- /ranking-list -->
+  </div><!-- /tab-ranking -->
+
+  <!-- 탭 2: 달력 -->
+  <div id="tab-calendar" class="tab-content">
+    <div class="section-title">월별 이벤트 타임라인</div>
+    <div class="calendar-section">
+
+      <div class="month-block">
+        <div class="month-label">6월 — 2026년 6월 8일부터</div>
+        <div class="timeline-grid">
+          <div class="tl-row">
+            <span class="tl-date">6.10 ~ 6.12</span>
+            <span class="tl-name"><span class="dot-mid"></span>스마트테크 코리아 (COEX)<span class="loc">서울 강남</span></span>
+            <span class="tl-impact"><span class="badge badge-mid">중</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">6.11 ~ 6.13</span>
+            <span class="tl-name"><span class="dot-mid"></span>더 레드 모먼트 부산<span class="loc">부산</span></span>
+            <span class="tl-impact"><span class="badge badge-mid">중</span></span>
+          </div>
+          <div class="tl-row" style="background:#FEF2F2">
+            <span class="tl-date">6.12 ~ 6.13</span>
+            <span class="tl-name"><span class="dot-high"></span>⚠ BTS 투어 부산 (미확정)<span class="loc">부산 전역</span></span>
+            <span class="tl-impact"><span class="badge badge-high">상(미확정)</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">6.13 ~ 6.14</span>
+            <span class="tl-name"><span class="dot-mid"></span>월드DJ페스티벌<span class="loc">경기 과천</span></span>
+            <span class="tl-impact"><span class="badge badge-mid">중</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">6.17 ~ 6.19</span>
+            <span class="tl-name"><span class="dot-mid"></span>MVEX 메타버스 엑스포<span class="loc">서울 강남 COEX</span></span>
+            <span class="tl-impact"><span class="badge badge-mid">중</span></span>
+          </div>
+          <div class="tl-row" style="background:#F0FDF4">
+            <span class="tl-date">6.18 ~ 6.24</span>
+            <span class="tl-name"><span class="dot-high"></span>강릉단오제 (유네스코) ⚠추정<span class="loc">강원 강릉</span></span>
+            <span class="tl-impact"><span class="badge badge-high">상</span></span>
+          </div>
+          <div class="tl-row" style="background:#F5F3FF">
+            <span class="tl-date">6.19 ~ 7.06</span>
+            <span class="tl-name"><span class="dot-high"></span>DIMF 대구국제뮤지컬페스티벌 (20주년)<span class="loc">대구 전역</span></span>
+            <span class="tl-impact"><span class="badge badge-high">상</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">6.19 ~ 6.20</span>
+            <span class="tl-name"><span class="dot-low"></span>부산항 축제<span class="loc">부산 북항</span></span>
+            <span class="tl-impact"><span class="badge badge-low">하</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">6.20 ~ 6.21</span>
+            <span class="tl-name"><span class="dot-mid"></span>RAPBEAT 페스티벌<span class="loc">서울 마포</span></span>
+            <span class="tl-impact"><span class="badge badge-mid">중</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">6.24 ~ 6.26</span>
+            <span class="tl-name"><span class="dot-mid"></span>전기전자재료학회 학술대회<span class="loc">부산 BEXCO</span></span>
+            <span class="tl-impact"><span class="badge badge-lowmid">하~중</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">6.25 ~ 6.28</span>
+            <span class="tl-name"><span class="dot-mid"></span>더메종 (COEX)<span class="loc">서울 강남</span></span>
+            <span class="tl-impact"><span class="badge badge-mid">중</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">6.25 ~ 6.28</span>
+            <span class="tl-name"><span class="dot-low"></span>부산수제맥주축제<span class="loc">부산 도심</span></span>
+            <span class="tl-impact"><span class="badge badge-lowmid">하~중</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">6.27 ~ 7.05</span>
+            <span class="tl-name"><span class="dot-mid"></span>부산모빌리티쇼 (BEXCO)<span class="loc">부산 해운대</span></span>
+            <span class="tl-impact"><span class="badge badge-mid">중</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">6.27 ~ 6.28</span>
+            <span class="tl-name"><span class="dot-mid"></span>부산원아시아페스티벌<span class="loc">부산 전역</span></span>
+            <span class="tl-impact"><span class="badge badge-mid">중</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="month-block">
+        <div class="month-label">7월</div>
+        <div class="timeline-grid">
+          <div class="tl-row">
+            <span class="tl-date">7.01 ~ 7.03</span>
+            <span class="tl-name"><span class="dot-low"></span>AUTOMANUFAC Korea (BEXCO)<span class="loc">부산 해운대</span></span>
+            <span class="tl-impact"><span class="badge badge-lowmid">하~중</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">7.03 ~ 7.05</span>
+            <span class="tl-name"><span class="dot-low"></span>부여서동연꽃축제<span class="loc">충남 부여</span></span>
+            <span class="tl-impact"><span class="badge badge-low">하</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">7.03 ~ 7.05</span>
+            <span class="tl-name"><span class="dot-mid"></span>Medi Expo Korea (EXCO) <small>★ DIMF 중첩</small><span class="loc">대구</span></span>
+            <span class="tl-impact"><span class="badge badge-mid">중</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">7.08 ~ 7.10</span>
+            <span class="tl-name"><span class="dot-mid"></span>나노코리아 (KINTEX)<span class="loc">경기 고양</span></span>
+            <span class="tl-impact"><span class="badge badge-mid">중</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">7.11 (토)</span>
+            <span class="tl-name"><span class="dot-mid"></span>KBO 올스타전<span class="loc">개최지 미확정</span></span>
+            <span class="tl-impact"><span class="badge badge-mid">중</span></span>
+          </div>
+          <div class="tl-row" style="background:#FEF2F2">
+            <span class="tl-date">7.13 ~ 7.29</span>
+            <span class="tl-name"><span class="dot-high"></span>유네스코 세계유산위원회 (196개국) 🏆1위<span class="loc">부산 BEXCO</span></span>
+            <span class="tl-impact"><span class="badge badge-high">상</span></span>
+          </div>
+          <div class="tl-row" style="background:#F5F3FF">
+            <span class="tl-date">7.중순 ⚠미확정</span>
+            <span class="tl-name"><span class="dot-high"></span>대구치맥페스티벌<span class="loc">대구 두류공원</span></span>
+            <span class="tl-impact"><span class="badge badge-high">상</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">7.24 ~ 8.09</span>
+            <span class="tl-name"><span class="dot-high"></span>보령머드축제 (17일) 🏆2위<span class="loc">충남 보령</span></span>
+            <span class="tl-impact"><span class="badge badge-high">상</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">7.25 ~ 8.02</span>
+            <span class="tl-name"><span class="dot-mid"></span>장흥물축제<span class="loc">전남 장흥</span></span>
+            <span class="tl-impact"><span class="badge badge-mid">중</span></span>
+          </div>
+          <div class="tl-row" style="background:#EFF6FF">
+            <span class="tl-date">7.31 ~ 8.02</span>
+            <span class="tl-name"><span class="dot-high"></span>인천 펜타포트 락 페스티벌 🏆4위<span class="loc">인천 송도</span></span>
+            <span class="tl-impact"><span class="badge badge-high">상</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="month-block">
+        <div class="month-label">8월 (조사 기간 내 8.7까지)</div>
+        <div class="timeline-grid">
+          <div class="tl-row" style="background:#FEF2F2">
+            <span class="tl-date">8.01 ~ 8.03</span>
+            <span class="tl-name"><span class="dot-high"></span>부산바다축제 🏆3위<span class="loc">부산 전 해변</span></span>
+            <span class="tl-impact"><span class="badge badge-high">상</span></span>
+          </div>
+          <div class="tl-row">
+            <span class="tl-date">8.01 ~ 8.07</span>
+            <span class="tl-name"><span class="dot-high"></span>보령머드축제 (계속)<span class="loc">충남 보령</span></span>
+            <span class="tl-impact"><span class="badge badge-high">상</span></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /tab-calendar -->
+
+  <!-- 탭 3: 지역별 상세 -->
+  <div id="tab-region" class="tab-content">
+    <div class="section-title">지역별 행사 상세</div>
+
+    <!-- 서울 -->
+    <div class="region-section">
+      <div class="region-header">
+        <h2>🏙️ 서울특별시</h2>
+        <span class="count">4개 행사</span>
+      </div>
+      <table class="event-table">
+        <thead><tr><th>행사명</th><th>기간</th><th>장소</th><th style="width:60px">영향도</th><th>수익경영 팁</th></tr></thead>
+        <tbody>
+          <tr><td><div class="name">스마트테크 코리아 2026</div><div class="org">AI·공급망 B2B 국제전시</div></td><td>06.10~06.12</td><td>COEX 강남구</td><td><span class="badge badge-mid">중</span></td><td><div class="rm-text">강남·역삼·삼성 비즈니스 호텔 ADR 5~10% 인상. 법인 선불 패키지 운영.</div></td></tr>
+          <tr><td><div class="name">MVEX 메타버스 엑스포 2026</div><div class="org">메타버스·XR 국제 박람회</div></td><td>06.17~06.19</td><td>COEX 강남구</td><td><span class="badge badge-mid">중</span></td><td><div class="rm-text">COEX 인근 1km 이내 업소 우선 수혜. 평일 출장 수요 보조.</div></td></tr>
+          <tr><td><div class="name">더메종 2026</div><div class="org">프리미엄 리빙·인테리어 전시</div></td><td>06.25~06.28</td><td>COEX 강남구</td><td><span class="badge badge-mid">중</span></td><td><div class="rm-text">주말 포함 4일. 강남·역삼·청담 숙소 주말 단가 5~15% 조정.</div></td></tr>
+          <tr><td><div class="name">RAPBEAT 2026</div><div class="org">힙합·R&B 대형 뮤직 페스티벌</div></td><td>06.20~06.21</td><td>문화비축기지 마포구</td><td><span class="badge badge-mid">중</span></td><td><div class="rm-text">홍대·합정·마포 금~토 수요 급증. ADR 10~20% 인상. 금요일 1박 연박 패키지.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 인천 -->
+    <div class="region-section">
+      <div class="region-header">
+        <h2>✈️ 인천광역시</h2>
+        <span class="count">1개 행사</span>
+      </div>
+      <table class="event-table">
+        <thead><tr><th>행사명</th><th>기간</th><th>장소</th><th style="width:60px">영향도</th><th>수익경영 팁</th></tr></thead>
+        <tbody>
+          <tr><td><div class="name">인천 펜타포트 락 페스티벌 2026</div><div class="org">국내 최대 록 페스티벌</div></td><td>07.31~08.02</td><td>송도 달빛축제공원 연수구</td><td><span class="badge badge-high">상</span></td><td><div class="rm-text">즉시 7/31~8/2 최고 단가 설정. 2박 이상 최소 숙박 조건 적용. 전년 대비 20~30% 인상.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 경기 -->
+    <div class="region-section">
+      <div class="region-header">
+        <h2>🌿 경기도</h2>
+        <span class="count">2개 행사</span>
+      </div>
+      <table class="event-table">
+        <thead><tr><th>행사명</th><th>기간</th><th>장소</th><th style="width:60px">영향도</th><th>수익경영 팁</th></tr></thead>
+        <tbody>
+          <tr><td><div class="name">월드DJ페스티벌 2026</div><div class="org">EDM 대형 음악 페스티벌</div></td><td>06.13~06.14</td><td>과천 서울랜드</td><td><span class="badge badge-mid">중</span></td><td><div class="rm-text">주말 2일. 강남·수원·안양 방향 숙소 주말 소폭 단가 조정.</div></td></tr>
+          <tr><td><div class="name">나노코리아 2026</div><div class="org">국내 최대 나노기술·소재 국제전시</div></td><td>07.08~07.10</td><td>KINTEX 고양시</td><td><span class="badge badge-mid">중</span></td><td><div class="rm-text">일산·덕양·화정 비즈니스 숙소 ADR 5~10% 인상. KINTEX 반경 3km 블록 사전 판매.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 강원 -->
+    <div class="region-section">
+      <div class="region-header">
+        <h2>⛰️ 강원특별자치도</h2>
+        <span class="count">2개 행사 (+ 해수욕 성수기)</span>
+      </div>
+      <table class="event-table">
+        <thead><tr><th>행사명</th><th>기간</th><th>장소</th><th style="width:60px">영향도</th><th>수익경영 팁</th></tr></thead>
+        <tbody>
+          <tr><td><div class="name">강릉단오제 ⚠일정 재확인</div><div class="org">유네스코 인류무형문화유산</div></td><td>06.18~06.24 추정</td><td>강릉 남대천·단오장</td><td><span class="badge badge-high">상</span></td><td><div class="rm-text">6/20~21(토~일) 집중 피크. ADR 25~30% 인상 + 2박 최소 숙박. 경포·주문진 방향 숙소 조기 완판.</div></td></tr>
+          <tr><td><div class="name">춘천국제마임축제 (CIMF)</div><div class="org">아시아 최대 마임·거리공연 페스티벌</div></td><td>6월 하순 (확인 필요)</td><td>춘천 명동·공지천 일원</td><td><span class="badge badge-mid">중</span></td><td><div class="rm-text">주말 집중 방문. 춘천 도심·의암호 인근 숙소 점유율 상승. 조식 포함 패키지 유리.</div></td></tr>
+          <tr><td><div class="name">동해안 해수욕 성수기</div><div class="org">속초·양양·강릉 해변 자체 수요</div></td><td>07.01~08.31</td><td>속초·양양·강릉 전 해변</td><td><span class="badge badge-high">상</span></td><td><div class="rm-text">별도 행사 없어도 자체 수요 최고조. 하계 성수기 최고 단가 필수 적용.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 충남 -->
+    <div class="region-section">
+      <div class="region-header">
+        <h2>🌊 충청남도</h2>
+        <span class="count">2개 행사</span>
+      </div>
+      <table class="event-table">
+        <thead><tr><th>행사명</th><th>기간</th><th>장소</th><th style="width:60px">영향도</th><th>수익경영 팁</th></tr></thead>
+        <tbody>
+          <tr><td><div class="name">제29회 보령머드축제</div><div class="org">국내 최대 국제 여름 축제, 연 100만 명+</div></td><td>07.24~08.09 (17일)</td><td>대천해수욕장 보령시</td><td><span class="badge badge-high">상</span></td><td><div class="rm-text">전 기간 최고 단가 + 주말 2박 최소 조건 필수. ADR 전년 대비 50~80% 인상 수용 가능.</div></td></tr>
+          <tr><td><div class="name">부여서동연꽃축제</div><div class="org">부여 대표 여름 테마 축제</div></td><td>07.03~07.05</td><td>부여 궁남지 일원</td><td><span class="badge badge-low">하</span></td><td><div class="rm-text">당일치기 비율 높음. 백제 역사 연계 2박 상품 시 잔여 객실 소진 가능.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 대전 / 충북 / 세종 -->
+    <div class="region-section">
+      <div class="region-header">
+        <h2>🔬 대전광역시 / 충청북도 / 세종특별자치시</h2>
+        <span class="count">KBO 수요</span>
+      </div>
+      <table class="event-table">
+        <thead><tr><th>행사명</th><th>기간</th><th>장소</th><th style="width:60px">영향도</th><th>수익경영 팁</th></tr></thead>
+        <tbody>
+          <tr><td><div class="name">KBO 한화이글스 홈 경기</div><div class="org">2026 정규시즌</div></td><td>6~8월 매주 화~일</td><td>한화생명이글스파크 대전</td><td><span class="badge badge-low">하</span></td><td><div class="rm-text">금·토 나이트게임 후 원거리 원정 팬 1박 수요. 둔산동·유성구 인근 주말 소폭 조정.</div></td></tr>
+          <tr><td colspan="5" class="no-event">충청북도 전 지역, 세종특별자치시: 해당 기간 주요 숙박 유발 행사 없음 (조사 완료). 단양 여름 수상레저 자체 수요 유지.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 전북 / 전남 / 광주 -->
+    <div class="region-section">
+      <div class="region-header">
+        <h2>🌸 전북특별자치도 / 전라남도 / 광주광역시</h2>
+        <span class="count">2개 행사</span>
+      </div>
+      <table class="event-table">
+        <thead><tr><th>행사명</th><th>기간</th><th>장소</th><th style="width:60px">영향도</th><th>수익경영 팁</th></tr></thead>
+        <tbody>
+          <tr><td><div class="name">장흥물축제 2026</div><div class="org">전남 대표 여름 물놀이 축제</div></td><td>07.25~08.02</td><td>탐진강 특설무대 장흥군</td><td><span class="badge badge-mid">중</span></td><td><div class="rm-text">주말(7/26, 8/1~2) 집중. 장흥·강진·보성 숙소 정가 판매 전환 권장.</div></td></tr>
+          <tr><td><div class="name">KBO KIA 타이거즈 홈 경기</div><div class="org">2026 정규시즌</div></td><td>6~8월 매주 화~일</td><td>광주-기아 챔피언스필드 광주</td><td><span class="badge badge-lowmid">하~중</span></td><td><div class="rm-text">주말 3연전 시 원정 팬 투숙 수요. 상무지구·충장로 숙소 주말 가격 탄력 적용.</div></td></tr>
+          <tr><td colspan="5" class="no-event">전북 전 지역: 해당 기간 주요 대형 행사 없음. ⚠ 여수 주의: 2026 여수세계섬박람회 (9/5~11/4) 조사 기간 밖이나, 8월부터 선예약 급증 예상 → 조기 블록 전략 수립 권고.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 경상북도 / 경상남도 -->
+    <div class="region-section">
+      <div class="region-header">
+        <h2>🏯 경상북도 / 경상남도</h2>
+        <span class="count">KBO 수요</span>
+      </div>
+      <table class="event-table">
+        <thead><tr><th>행사명</th><th>기간</th><th>장소</th><th style="width:60px">영향도</th><th>수익경영 팁</th></tr></thead>
+        <tbody>
+          <tr><td><div class="name">KBO NC 다이노스 홈 경기</div><div class="org">2026 정규시즌</div></td><td>6~8월 매주 화~일</td><td>창원NC파크 창원시</td><td><span class="badge badge-low">하</span></td><td><div class="rm-text">주말 3연전 시 의창구·성산구 숙소 소폭 수요 상승.</div></td></tr>
+          <tr><td colspan="5" class="no-event">경북 전 지역: 해당 기간 대형 행사 없음. 경주 보문관광단지 자체 여름 관광 수요 있음. 경남 통영·거제·남해 등 남해안 7~8월 자체 성수기 유지.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 대구 -->
+    <div class="region-section">
+      <div class="region-header">
+        <h2>🎭 대구광역시</h2>
+        <span class="count">4개 행사 (7월 집중 수요 폭발)</span>
+      </div>
+      <table class="event-table">
+        <thead><tr><th>행사명</th><th>기간</th><th>장소</th><th style="width:60px">영향도</th><th>수익경영 팁</th></tr></thead>
+        <tbody>
+          <tr><td><div class="name">DIMF 대구국제뮤지컬페스티벌 (20주년)</div><div class="org">아시아 최대 뮤지컬 페스티벌</div></td><td>06.19~07.06 (18일)</td><td>대구 오페라하우스·계명아트센터</td><td><span class="badge badge-high">상</span></td><td><div class="rm-text">주말 3회 피크. 동대구역 인근 ADR 20~30% 인상. 7/3~5 Medi Expo 중첩 → 전역 최고가 필수.</div></td></tr>
+          <tr><td><div class="name">Medi Expo Korea 2026</div><div class="org">국제 의료기기 전시, 해외 바이어 포함</div></td><td>07.03~07.05</td><td>EXCO 북구</td><td><span class="badge badge-mid">중</span></td><td><div class="rm-text">DIMF 중첩 → 7/3~5 대구 전역 수요 폭발 구간. 최고 단가 적용 필수.</div></td></tr>
+          <tr><td><div class="name">대구치맥페스티벌 2026 ⚠일정 미확정</div><div class="org">연 100만 명, 외국인 비율 높음</div></td><td>7월 2~3주차 추정</td><td>두류공원 야외음악당</td><td><span class="badge badge-high">상</span></td><td><div class="rm-text">일정 확정 즉시 ADR 30~50% 인상. 두류공원·달서구·서구 우선 수혜. 심야 귀가 포기 1박 수요 높음.</div></td></tr>
+          <tr><td><div class="name">KBO 삼성 라이온즈 홈 경기</div><div class="org">2026 정규시즌</div></td><td>6~8월 매주 화~일</td><td>라이온즈파크 수성구</td><td><span class="badge badge-low">하</span></td><td><div class="rm-text">원정 팬 수요. 수성구·동구 숙소 주말 소폭 조정.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 부산 -->
+    <div class="region-section">
+      <div class="region-header" style="background:linear-gradient(135deg,#1E3A5F,#DC2626)">
+        <h2>🌊 부산광역시 — 올해 최대 수혜 도시</h2>
+        <span class="count">10개 행사</span>
+      </div>
+      <table class="event-table">
+        <thead><tr><th>행사명</th><th>기간</th><th>장소</th><th style="width:60px">영향도</th><th>수익경영 팁</th></tr></thead>
+        <tbody>
+          <tr style="background:#FEF2F2"><td><div class="name">⚠ BTS 월드투어 인 부산 (미확정)</div><div class="org">전원 전역 후 첫 투어 가능성</div></td><td>06.12~06.13 추정</td><td>아시아드주경기장 (추정)</td><td><span class="badge badge-unk">확인 중</span></td><td><div class="rm-text">오늘 즉시 공식 확인. 확정 시 역대 최고 단가 + 전 채널 블록 마감.</div></td></tr>
+          <tr><td><div class="name">더 레드 모먼트 부산 2026</div><div class="org">아트·K-문화 복합 대형 페스티벌</div></td><td>06.11~06.13</td><td>부산 일원</td><td><span class="badge badge-mid">중</span></td><td><div class="rm-text">BTS와 날짜 겹칠 경우 폭발적 수요. 해운대·광안리 주말 수요 견인.</div></td></tr>
+          <tr><td><div class="name">한국전기전자재료학회 하계학술대회</div><div class="org">국내 학술 컨벤션</div></td><td>06.24~06.26</td><td>BEXCO 해운대구</td><td><span class="badge badge-lowmid">하~중</span></td><td><div class="rm-text">수~금 평일. BEXCO 인근 기업형 숙소 수요 보조.</div></td></tr>
+          <tr><td><div class="name">부산수제맥주축제 스콜 야시장 (제10회)</div><div class="org">수제맥주·야시장 테마</div></td><td>06.25~06.28</td><td>부산 도심</td><td><span class="badge badge-lowmid">하~중</span></td><td><div class="rm-text">4일 주말 포함. 서면·남포동 인근 숙소 잔여 객실 소진.</div></td></tr>
+          <tr><td><div class="name">부산원아시아페스티벌 with NOL 2026</div><div class="org">K-팝 콘서트 포함 한류 복합</div></td><td>06.27~06.28</td><td>부산 일원</td><td><span class="badge badge-mid">중</span></td><td><div class="rm-text">해운대·센텀·서면 방향 ADR 20~30% 인상. 금~일 3일 수요 발생.</div></td></tr>
+          <tr><td><div class="name">부산모빌리티쇼 2026</div><div class="org">국제 자동차·모빌리티 전시</div></td><td>06.27~07.05 (9일)</td><td>BEXCO 해운대구</td><td><span class="badge badge-mid">중</span></td><td><div class="rm-text">BEXCO 인근 9일 꾸준한 점유율. 평일 비즈니스 단가 유지, 주말 소폭 상향.</div></td></tr>
+          <tr><td><div class="name">AUTOMANUFAC Korea 2026</div><div class="org">자동차 제조·부품 B2B 국제 전시</div></td><td>07.01~07.03</td><td>BEXCO 해운대구</td><td><span class="badge badge-lowmid">하~중</span></td><td><div class="rm-text">수~금 3일 평일 전시. BEXCO 인근 평일 점유율 보완.</div></td></tr>
+          <tr style="background:#FEF2F2"><td><div class="name">제48차 유네스코 세계유산위원회 🏆1위</div><div class="org">196개국 대표단·NGO·언론</div></td><td>07.13~07.29 (17일)</td><td>BEXCO 컨벤션홀 + 해운대 특급호텔</td><td><span class="badge badge-high">상</span></td><td><div class="rm-text">올해 부산 최대 MICE. 해운대·센텀·우동 전 호텔 조기 완판 예상. 지금 즉시 최고 단가 재설정.</div></td></tr>
+          <tr style="background:#FEF2F2"><td><div class="name">부산바다축제 2026 🏆3위</div><div class="org">부산 여름 최대 해변 축제</div></td><td>08.01~08.03</td><td>해운대·광안리·송정·다대포 전 해변</td><td><span class="badge badge-high">상</span></td><td><div class="rm-text">유네스코 직후 연속 피크. 7/31~8/4 부산 해변권 완판 확실. 2박 최소 세팅 필수.</div></td></tr>
+          <tr><td><div class="name">KBO 롯데 자이언츠 홈 경기</div><div class="org">2026 정규시즌</div></td><td>6~8월 매주 화~일</td><td>사직구장 동래구</td><td><span class="badge badge-low">하</span></td><td><div class="rm-text">금·토 나이트게임 후 원정 팬 1박 수요. 사직·연산동 인근 소폭 조정.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 울산 / 제주 -->
+    <div class="region-section">
+      <div class="region-header">
+        <h2>🌊 울산광역시</h2>
+        <span class="count">1개 행사</span>
+      </div>
+      <table class="event-table">
+        <thead><tr><th>행사명</th><th>기간</th><th>장소</th><th style="width:60px">영향도</th><th>수익경영 팁</th></tr></thead>
+        <tbody>
+          <tr><td><div class="name">태화강 국가정원 여름 특별 프로그램</div><div class="org">장미·연꽃 시즌, 가족 단위 방문</div></td><td>6~7월</td><td>태화강 국가정원 중구</td><td><span class="badge badge-low">하</span></td><td><div class="rm-text">당일치기 위주. 울산 도심 숙소 잔여 객실 소진 활용.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="region-section">
+      <div class="region-header">
+        <h2>🏝️ 제주특별자치도</h2>
+        <span class="count">3개 행사 + 하계 성수기</span>
+      </div>
+      <table class="event-table">
+        <thead><tr><th>행사명</th><th>기간</th><th>장소</th><th style="width:60px">영향도</th><th>수익경영 팁</th></tr></thead>
+        <tbody>
+          <tr style="background:#FFFBEB"><td><div class="name">제주 하계 최고 성수기</div><div class="org">수도권 가족·커플·MZ + 외국인 관광객 집중</div></td><td>07.01~08.31</td><td>제주 전역</td><td><span class="badge badge-high">상</span></td><td><div class="rm-text">7~8월 전국 최고 수요. 즉시 전 기간 최고 단가. 얼리버드 종료 + 할인 상품 비활성화 필수. 최소 2박 조건.</div></td></tr>
+          <tr><td><div class="name">별빛달빛 어린이 축제</div><div class="org">비짓제주 공식 어린이 체험 행사</div></td><td>6월 (확인 필요)</td><td>제주별빛누리공원</td><td><span class="badge badge-low">하</span></td><td><div class="rm-text">가족 단위 1~2박 수요. 제주 시내 숙소 주말 잔여 소진 활용.</div></td></tr>
+          <tr><td><div class="name">펠롱펠롱 제주올레 글로벌 어린이걷기 축제</div><div class="org">국제 어린이 걷기 행사</div></td><td>6월 (확인 필요)</td><td>제주올레 코스 일원</td><td><span class="badge badge-lowmid">하~중</span></td><td><div class="rm-text">행사 당일 전후 1박 수요. 제주 시내~서귀포 수요 분산 보조.</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /tab-region -->
+
+  <!-- 데이터 출처 -->
+  <div class="footer-sources">
+    <h4>📂 분석 기반 데이터 출처</h4>
+    <div class="source-links">
+      <a href="https://korean.visitkorea.or.kr/kfes/list/festivalCalendar.do" target="_blank">한국관광공사 구석구석</a>
+      <a href="https://www.mcst.go.kr/site/s_culture/festival/festivalList.jsp" target="_blank">문화체육관광부 지역축제</a>
+      <a href="https://www.visitbusan.net" target="_blank">Visit Busan</a>
+      <a href="https://www.bexco.co.kr" target="_blank">BEXCO</a>
+      <a href="https://www.coex.co.kr/event/full-schedules/" target="_blank">COEX</a>
+      <a href="https://www.kintex.com/web/ko/event/clist.do" target="_blank">KINTEX</a>
+      <a href="https://www.koreabaseball.com/Schedule/Calendar.aspx" target="_blank">KBO 경기일정</a>
+      <a href="https://yeosuexpo2026.or.kr/" target="_blank">여수세계섬박람회</a>
+      <a href="https://www.mudfestival.or.kr/" target="_blank">보령머드축제</a>
+      <a href="https://www.dimf.or.kr/" target="_blank">DIMF</a>
+    </div>
+    <p style="font-size:11px;color:var(--sub);margin-top:10px">⚠ 일부 행사는 일정 미확정 또는 잠정 상태입니다. 최종 의사결정 전 반드시 공식 채널에서 재확인하시기 바랍니다. · 회/실 수치는 행사 기간 내 예상 수요 밀도 지수(상대 비교용)</p>
+  </div>
+
+</div><!-- /wrapper -->
+
+<a href="#" class="scroll-top" title="맨 위로">↑</a>
+
+<script>
+  function showTab(name, btn) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.main-tab').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+</body>
+</html>
