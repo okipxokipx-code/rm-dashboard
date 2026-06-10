@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>숙박 수익경영 도우미 · 2026.06.08</title>
+<title id="page-title">숙박 수익경영 도우미</title>
 <style>
   /* ════════════════════════════════════════════════
      디자인 시스템 — 숙박 수익경영 도우미 v1.0
@@ -531,8 +531,8 @@
 <!-- 상단 헤더 -->
 <div class="top-bar">
   <div class="logo">🏨 숙박 <span>수익경영</span> 도우미</div>
-  <div class="date-badge">📅 2026년 6월 8일 오전 7:00 기준</div>
-  <div class="update">조사 기간 ~8월 7일 (D+60)</div>
+  <div class="date-badge" id="today-badge">📅 로딩 중...</div>
+  <div class="update" id="period-badge">조사 기간 로딩 중...</div>
 </div>
 
 <div class="wrapper">
@@ -549,22 +549,22 @@
   <!-- 오늘 할 일 -->
   <div class="section-title">오늘 아침 즉시 조치 사항</div>
   <div class="action-grid">
-    <div class="action-card urgent">
+    <div class="action-card urgent" data-event-start="2026-07-13" data-event-days="17">
       <div class="rank">🔴 1순위</div>
       <h4>부산 유네스코 WHC<br>7/13~7/29</h4>
-      <div class="period">D-35부터 시작 · 17일 연속</div>
+      <div class="period js-dday">D-35부터 시작 · 17일 연속</div>
       <div class="tip">전 기간 최고 단가 즉시 재설정 + 외교·언론 법인 블록 확보 지금 시작</div>
     </div>
-    <div class="action-card urgent">
+    <div class="action-card urgent" data-event-start="2026-06-12" data-event-days="2">
       <div class="rank">⚠️ 2순위 (미확정)</div>
       <h4>부산 BTS 투어<br>6/12~6/13 추정</h4>
-      <div class="period">D-4 · 지금 즉시 공식 확인 필요</div>
+      <div class="period js-dday">D-4 · 지금 즉시 공식 확인 필요</div>
       <div class="tip">HYBE 공식 채널 확인 후 확정 시 즉각 블록 마감 + 최고가 설정</div>
     </div>
-    <div class="action-card urgent">
+    <div class="action-card urgent" data-event-start="2026-07-24" data-event-days="17">
       <div class="rank">🔴 3순위</div>
       <h4>충남 보령머드축제<br>7/24~8/9</h4>
-      <div class="period">17일 연속 · 완판 예정 구간</div>
+      <div class="period js-dday">17일 연속 · 완판 예정 구간</div>
       <div class="tip">전 기간 최고 단가 + 주말 2박 최소 숙박 조건 지금 재확인</div>
     </div>
     <div class="action-card warn">
@@ -573,10 +573,10 @@
       <div class="period">조직위 출범 완료 · 일정 곧 발표</div>
       <div class="tip">조직위 공홈 즉시 확인 → 확정 즉시 30~50% 인상 세팅</div>
     </div>
-    <div class="action-card info">
+    <div class="action-card info" data-event-start="2026-07-31" data-event-days="3">
       <div class="rank">🔵 5순위</div>
       <h4>인천 펜타포트<br>7/31~8/2</h4>
-      <div class="period">송도 달빛축제공원 · 3일</div>
+      <div class="period js-dday">송도 달빛축제공원 · 3일</div>
       <div class="tip">조기 예약 현황 확인 → 아직 여유 있으면 지금 20~30% 인상</div>
     </div>
   </div>
@@ -900,7 +900,7 @@
     <div class="calendar-section">
 
       <div class="month-block">
-        <div class="month-label">6월 — 2026년 6월 8일부터</div>
+        <div class="month-label" id="month-start-label">6월 — 오늘부터</div>
         <div class="timeline-grid">
           <div class="tl-row">
             <span class="tl-date">6.10 ~ 6.12</span>
@@ -1271,6 +1271,63 @@
 <a href="#" class="scroll-top" title="맨 위로">↑</a>
 
 <script>
+  /* ── 날짜 동적 표시 ── */
+  (function() {
+    const KR = { timeZone: 'Asia/Seoul' };
+    const now = new Date();
+
+    // 오늘 날짜 (한국 시간 기준)
+    const yy = now.toLocaleString('ko-KR', { ...KR, year: 'numeric' }).replace('년', '년');
+    const mm = now.toLocaleString('ko-KR', { ...KR, month: 'long' });
+    const dd = now.toLocaleString('ko-KR', { ...KR, day: 'numeric' });
+    const todayStr = `${yy} ${mm} ${dd} 오전 7:00 기준`;
+
+    // D+60 마감일
+    const end = new Date(now);
+    end.setDate(end.getDate() + 60);
+    const endMM = end.toLocaleString('ko-KR', { ...KR, month: 'long' });
+    const endDD = end.toLocaleString('ko-KR', { ...KR, day: 'numeric' });
+
+    // 타이틀 & 뱃지 삽입
+    const dateForTitle = now.toLocaleDateString('ko-KR', { ...KR, year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\. /g, '.').replace('.', '').trim();
+    document.getElementById('page-title').textContent = `숙박 수익경영 도우미 · ${dateForTitle}`;
+    document.getElementById('today-badge').textContent = `📅 ${todayStr}`;
+    document.getElementById('period-badge').textContent = `조사 기간 ~${endMM} ${endDD} (D+60)`;
+
+    // 달력 첫 줄 레이블
+    const startLabel = document.getElementById('month-start-label');
+    if (startLabel) {
+      startLabel.textContent = `${mm.replace('월', '')}월 — ${yy.replace('년', '년')} ${mm} ${dd}부터`;
+    }
+  })();
+
+  /* ── D-day 자동 계산 ── */
+  (function() {
+    const todayKR = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+    todayKR.setHours(0, 0, 0, 0);
+
+    document.querySelectorAll('[data-event-start]').forEach(card => {
+      const start = new Date(card.dataset.eventStart + 'T00:00:00+09:00');
+      const days  = parseInt(card.dataset.eventDays || 1);
+      const diff  = Math.ceil((start - todayKR) / 86400000);
+      const periodEl = card.querySelector('.js-dday');
+      if (!periodEl) return;
+
+      if (diff > 0) {
+        periodEl.textContent = `D-${diff} · ${days}일간`;
+      } else if (diff === 0) {
+        periodEl.textContent = `🔥 오늘 시작! · ${days}일간`;
+        card.style.outline = '2px solid var(--c-high)';
+      } else if (diff > -days) {
+        periodEl.textContent = `진행 중 · ${days + diff}일 남음`;
+      } else {
+        periodEl.textContent = `종료됨`;
+        card.style.opacity = '0.5';
+      }
+    });
+  })();
+
+  /* ── 탭 전환 ── */
   function showTab(name, btn) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.main-tab').forEach(el => el.classList.remove('active'));
